@@ -194,8 +194,7 @@ export function ConnectDetail({
         label: 'OPEN',
         onClick: showWalletConnectModal,
       }
-    : hasQrCode
-    ? {
+    : {
         description: `Don\u2019t have ${name}?`,
         label: 'GET',
         onClick: () =>
@@ -204,8 +203,7 @@ export function ConnectDetail({
               ? WalletStep.DownloadOptions
               : WalletStep.Download
           ),
-      }
-    : null;
+      };
 
   const { width: windowWidth } = useWindowSize();
   const smallWindow = windowWidth && windowWidth < 768;
@@ -263,22 +261,9 @@ export function ConnectDetail({
               style={{ textAlign: 'center' }}
             >
               <Text color="modalText" size="18" weight="bold">
-                {ready
-                  ? `Opening ${name}...`
-                  : downloadUrls?.browserExtension
-                  ? `${name} is not installed`
-                  : `${name} is not available`}
+                {`Opening ${name}...`}
               </Text>
-              {!ready && downloadUrls?.browserExtension ? (
-                <Box paddingTop="20">
-                  <ActionButton
-                    href={downloadUrls.browserExtension}
-                    label="INSTALL"
-                    type="secondary"
-                  />
-                </Box>
-              ) : null}
-              {ready && !hasQrCode && (
+              {!hasQrCode && (
                 <>
                   <Box
                     alignItems="center"
@@ -294,6 +279,37 @@ export function ConnectDetail({
                     >
                       Confirm connection in the extension
                     </Text>
+                    <Box
+                      alignItems="center"
+                      display="flex"
+                      flexDirection="row"
+                      justifyContent="center"
+                    >
+                      <Box paddingRight="3">
+                        <Text
+                          color="modalTextSecondary"
+                          size="14"
+                          textAlign="center"
+                          weight="medium"
+                        >
+                          or
+                        </Text>
+                      </Box>
+                      <Box
+                        className={touchableStyles({
+                          active: 'shrink',
+                          hover: 'grow',
+                        })}
+                        cursor="pointer"
+                        onClick={() => changeWalletStep(WalletStep.Connect)}
+                        style={{ willChange: 'transform' }}
+                        transition="default"
+                      >
+                        <Text color="accentColor" size="14" weight="bold">
+                          connect with your phone
+                        </Text>
+                      </Box>
+                    </Box>
                   </Box>
                   <Box
                     alignItems="center"
