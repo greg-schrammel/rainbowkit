@@ -15,7 +15,9 @@ export const coinbaseWallet = ({
   ...options
 }: CoinbaseWalletOptions): Wallet => {
   const isCoinbaseWalletInjected =
-    typeof window !== 'undefined' && window.ethereum?.isCoinbaseWallet === true;
+    typeof window !== 'undefined' &&
+    (window.ethereum?.isCoinbaseWallet ||
+      window.ethereum?.providers?.some((p: any) => p?.isCoinbaseWallet));
 
   return {
     id: 'coinbase',

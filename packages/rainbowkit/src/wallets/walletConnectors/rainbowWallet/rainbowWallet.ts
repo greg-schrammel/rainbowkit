@@ -1,5 +1,5 @@
 /* eslint-disable sort-keys-fix/sort-keys-fix */
-import type { InjectedConnectorOptions } from '@wagmi/core/dist/connectors/injected';
+import type { InjectedConnectorOptions } from '@wagmi/core/connectors/injected';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { Chain } from '../../../components/RainbowKitProvider/RainbowKitChainContext';
 import { isAndroid } from '../../../utils/isMobile';
@@ -10,32 +10,24 @@ export interface RainbowWalletOptions {
   chains: Chain[];
 }
 
-function isRainbow(ethereum: NonNullable<typeof window['ethereum']>) {
-  // `isRainbow` needs to be added to the wagmi `Ethereum` object
-  const isRainbow = Boolean(ethereum.isRainbow);
-
-  if (!isRainbow) {
-    return false;
-  }
-
-  return true;
-}
-
 export const rainbowWallet = ({
   chains,
   ...options
 }: RainbowWalletOptions & InjectedConnectorOptions): Wallet => {
+  const providers = typeof window !== 'undefined' && window.ethereum?.providers;
+
   const isRainbowInjected =
     typeof window !== 'undefined' &&
-    typeof window.ethereum !== 'undefined' &&
-    isRainbow(window.ethereum);
-
+    (window.ethereum?.isRainbow ||
+      providers?.some((ethereum: any) => ethereum?.isRainbow));
   const shouldUseWalletConnect = !isRainbowInjected;
+
   return {
     id: 'rainbow',
     name: 'Rainbow',
     iconUrl: async () => (await import('./rainbowWallet.svg')).default,
     iconBackground: '#0c2f78',
+    installed: !shouldUseWalletConnect ? isRainbowInjected : undefined,
     downloadUrls: {
       android: 'https://play.google.com/store/apps/details?id=me.rainbow',
       ios: 'https://apps.apple.com/us/app/rainbow-ethereum-wallet/id1457119021',
@@ -46,7 +38,15 @@ export const rainbowWallet = ({
         ? getWalletConnectConnector({ chains })
         : new InjectedConnector({
             chains,
-            options,
+            options: {
+              getProvider: () =>
+                providers
+                  ? providers.find((ethereum: any) => ethereum?.isRainbow)
+                  : typeof window !== 'undefined'
+                  ? window.ethereum
+                  : undefined,
+              ...options,
+            },
           });
 
       const getUri = async () => {
