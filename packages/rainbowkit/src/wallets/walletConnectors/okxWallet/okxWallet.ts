@@ -89,8 +89,8 @@ export const okxWallet = ({
             }
           : undefined,
         extension: {
-          learnMoreUrl: 'https://www.okx.com/web3/',
           instructions: {
+            learnMoreUrl: 'https://www.okx.com/web3/',
             steps: [
               {
                 description:
